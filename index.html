@@ -3,438 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PopTV | Streaming Live</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>PopTV | Le Futur du Streaming</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
         :root {
-            --primary: #00f2ff; /* Cyan Néon */
-            --secondary: #7000ff; /* Violet Néon */
-            --bg-dark: #0a0a0f;
-            --bg-card: #15151e;
-            --text-main: #ffffff;
-            --text-muted: #8b8b9b;
-            --glass: rgba(21, 21, 30, 0.7);
-            --border-glass: rgba(255, 255, 255, 0.1);
+            --bg-main: #09090b;
+            --bg-card: #18181b;
+            --primary: #00f2ff; /* Cyan Electrique */
+            --secondary: #bd00ff; /* Violet Laser */
+            --accent: #ff0055; /* Rouge Vif */
+            --text: #ffffff;
+            --text-dim: #a1a1aa;
+            
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow-glow: 0 0 20px rgba(0, 242, 255, 0.15);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
-            color: var(--text-main);
+            background-color: var(--bg-main);
+            color: var(--text);
             overflow-x: hidden;
             min-height: 100vh;
         }
 
-        /* --- Scrollbar Custom --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        /* --- Background Effects --- */
+        .ambient-light {
+            position: fixed; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(189,0,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -200px; left: -100px; z-index: -1; pointer-events: none;
+        }
+        .ambient-light-2 {
+            position: fixed; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0,242,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            bottom: -100px; right: -100px; z-index: -1; pointer-events: none;
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
         /* --- Header --- */
         header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            padding: 15px 5%;
-            z-index: 1000;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-glass);
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 15px 4%;
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
-        .logo-container { display: flex; align-items: center; gap: 10px; }
-        
-        /* Logo Image Styling */
-        .logo-img { height: 40px; width: auto; object-fit: contain; }
-        
-        /* Fallback Text Logo styling */
-        .logo-text { 
-            font-size: 1.8rem; font-weight: 800; 
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+        /* Logo Fallback (si l'image casse) */
+        .brand {
+            font-size: 1.8rem; font-weight: 900; letter-spacing: -1px;
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: white;
+        }
+        .brand span {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+        }
+        .logo-img { height: 40px; display: none; } /* Caché par défaut, activé par JS si valide */
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        
+        .clock-badge {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 8px 16px; border-radius: 50px;
+            font-variant-numeric: tabular-nums; font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .live-dot {
+            width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent); animation: pulse 2s infinite;
         }
 
-        .live-status {
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 20px; border-radius: 50px;
-            border: 1px solid var(--border-glass);
-            font-weight: 600; font-size: 0.9rem;
-        }
-
-        .red-dot {
-            width: 10px; height: 10px; background: #ff3b3b;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ff3b3b;
-            animation: blink 2s infinite;
-        }
-
-        /* --- Hero Section --- */
+        /* --- Hero Section (Le Direct) --- */
         .hero {
-            position: relative;
-            height: 75vh;
-            width: 100%;
-            display: flex;
-            align-items: flex-end;
-            padding-bottom: 80px;
+            position: relative; height: 80vh; width: 100%;
+            display: flex; align-items: center;
             overflow: hidden;
-            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .hero::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to top, var(--bg-dark) 10%, rgba(10,10,15,0.8) 50%, transparent 100%);
+        .hero-bg-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+        }
+        
+        .hero-img {
+            width: 100%; height: 100%; object-fit: cover;
+            mask-image: linear-gradient(to right, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 40%, transparent 100%);
+            transition: transform 10s ease;
+        }
+
+        /* Overlay sombre pour lisibilité */
+        .hero::before {
+            content:''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, #09090b 10%, rgba(9,9,11,0.8) 50%, transparent 100%);
             z-index: 1;
         }
 
-        .hero-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 0;
-            transition: transform 10s ease; /* Zoom effect handled by JS usually, simple CSS here */
-            animation: zoomSlow 20s infinite alternate;
-        }
-
         .hero-content {
-            position: relative; z-index: 2;
-            width: 90%; max-width: 1200px;
-            margin: 0 auto;
+            position: relative; z-index: 2; padding-left: 5%;
+            max-width: 650px;
         }
 
-        .tag-live {
-            background: var(--primary); color: #000;
-            padding: 5px 12px; border-radius: 4px;
-            font-weight: 800; font-size: 0.8rem; text-transform: uppercase;
-            display: inline-block; margin-bottom: 15px;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        .status-badge {
+            background: var(--accent); color: white;
+            padding: 6px 12px; border-radius: 4px;
+            font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
         }
 
         .hero-title {
-            font-size: 4rem; line-height: 1.1; margin-bottom: 15px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            font-size: 4.5rem; line-height: 1; margin-bottom: 20px;
+            background: linear-gradient(to bottom, #fff, #a1a1aa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
         .hero-meta {
-            color: var(--text-muted); font-size: 1.2rem;
-            display: flex; gap: 20px; align-items: center;
+            display: flex; gap: 20px; font-size: 1.1rem; color: var(--text-dim); margin-bottom: 30px;
+            align-items: center;
+        }
+        .hero-meta i { color: var(--primary); margin-right: 5px; }
+
+        .btn-watch {
+            background: white; color: black; border: none;
+            padding: 15px 40px; border-radius: 50px;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-watch:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.3); }
+
+        /* --- Program Guide --- */
+        .container { padding: 40px 5%; max-width: 1600px; margin: 0 auto; }
+
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+        }
+        .section-title { font-size: 1.5rem; font-weight: 700; }
+
+        /* Filtres */
+        .filters {
+            display: flex; gap: 10px;
+        }
+        .filter-chip {
+            background: var(--glass); border: 1px solid var(--border); color: var(--text-dim);
+            padding: 8px 20px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: 500;
+        }
+        .filter-chip:hover, .filter-chip.active {
+            background: var(--glass); border-color: var(--primary); color: var(--text);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
         }
 
-        /* --- Controls / Filters --- */
-        .container {
-            max-width: 1400px; margin: 0 auto; padding: 0 5%;
-        }
-
-        .filters-wrapper {
-            position: sticky; top: 85px; z-index: 90;
-            background: rgba(10, 10, 15, 0.95);
-            padding: 15px 0;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border-glass);
-            display: flex; gap: 15px; overflow-x: auto;
-            /* Hide scrollbar for clean look */
-            -ms-overflow-style: none; scrollbar-width: none;
-        }
-        .filters-wrapper::-webkit-scrollbar { display: none; }
-
-        .filter-btn {
-            background: transparent;
-            border: 1px solid var(--border-glass);
-            color: var(--text-muted);
-            padding: 10px 24px; border-radius: 30px;
-            cursor: pointer; font-weight: 600;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .filter-btn:hover { border-color: var(--text-main); color: var(--text-main); }
-        
-        .filter-btn.active {
-            background: var(--primary);
-            color: #000; border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
-        }
-
-        /* --- Grid & Cards --- */
-        .program-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            padding-bottom: 100px;
+        /* Grid */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;
         }
 
         .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid transparent;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            cursor: pointer;
-            display: flex; flex-direction: column;
+            background: var(--bg-card); border-radius: 16px; overflow: hidden;
+            border: 1px solid transparent; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative; display: flex; flex-direction: column;
         }
 
         .card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transform: translateY(-8px); border-color: var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        .card-img-box {
-            position: relative;
-            height: 180px; overflow: hidden;
+        .card-poster {
+            height: 160px; position: relative; overflow: hidden;
         }
-
-        .card-img {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform 0.5s ease;
+        .card-poster img {
+            width: 100%; height: 100%; object-fit: cover; transition: 0.6s;
         }
+        .card:hover .card-poster img { transform: scale(1.1); }
 
-        .card:hover .card-img { transform: scale(1.1); }
-
-        .card-badge {
+        /* Tags de catégorie */
+        .cat-tag {
             position: absolute; top: 10px; right: 10px;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-            padding: 4px 10px; border-radius: 6px;
-            font-size: 0.75rem; font-weight: 700; color: #fff;
+            padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;
+            backdrop-filter: blur(10px); color: black;
+        }
+        .cat-news { background: #ff4757; color: white; }
+        .cat-kids { background: #ffa502; }
+        .cat-show { background: #00f2ff; }
+        .cat-movie { background: #a55eea; color: white; }
+
+        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+
+        .time-slot {
+            font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 8px;
+            display: flex; justify-content: space-between;
         }
 
-        .card-body {
-            padding: 20px;
-            flex-grow: 1; display: flex; flex-direction: column;
-        }
+        .prog-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; line-height: 1.3; }
+        .prog-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        .card-time {
-            color: var(--primary); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;
-            display: flex; align-items: center; gap: 6px;
+        /* Barre de progression dans la carte */
+        .progress-track {
+            height: 3px; background: rgba(255,255,255,0.1); width: 100%; margin-top: auto; border-radius: 2px;
+            overflow: hidden;
         }
-
-        .card-title {
-            font-size: 1.15rem; font-weight: 700; line-height: 1.4; margin-bottom: 10px;
-            color: #fff;
-        }
-
-        .card-cat {
-            font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;
-            margin-top: auto;
-        }
-
-        /* --- Active Card Styling --- */
-        .card.active {
-            border: 1px solid var(--primary);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-        }
-        
-        .progress-bar {
-            height: 4px; width: 100%; background: #333;
-            margin-top: 15px; border-radius: 2px; overflow: hidden;
-            display: none; /* Hidden by default */
-        }
-        
-        .card.active .progress-bar { display: block; }
-        
         .progress-fill {
-            height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary));
-            width: 0%; transition: width 1s linear;
+            height: 100%; background: var(--primary); width: 0%;
+            box-shadow: 0 0 10px var(--primary);
         }
 
-        .card.past { opacity: 0.5; filter: grayscale(0.8); }
-        .card.past:hover { opacity: 1; filter: grayscale(0); }
-
-        /* --- Footer --- */
-        footer {
-            text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.9rem;
-            border-top: 1px solid var(--border-glass);
-            background: #050508;
+        /* État Actif */
+        .card.is-live {
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
         }
+        
+        .card.is-past { opacity: 0.5; filter: grayscale(1); }
+        .card.is-past:hover { opacity: 1; filter: grayscale(0); }
 
         /* Animations */
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        @keyframes zoomSlow { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         
-        .fade-in { animation: fadeIn 0.5s forwards; }
-
         @media (max-width: 768px) {
             .hero-title { font-size: 2.5rem; }
-            .hero { height: 60vh; }
-            .filters-wrapper { top: 70px; }
-            header { padding: 15px 20px; }
+            .hero { height: 60vh; align-items: flex-end; padding-bottom: 40px; }
+            .hero-img { mask-image: linear-gradient(to top, black 20%, transparent 100%); -webkit-mask-image: linear-gradient(to top, black 20%, transparent 100%); }
+            .hero::before { background: linear-gradient(0deg, #09090b 10%, rgba(9,9,11,0.6) 60%, transparent 100%); }
+            .hero-content { padding: 0 5%; max-width: 100%; }
+            .filters { overflow-x: auto; padding-bottom: 10px; }
+            .filter-chip { white-space: nowrap; }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo-container">
-        <img src="https://ibb.co/fdLdWFvs" alt="PopTV Logo" class="logo-img" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block'">
-        <div class="logo-text" style="display:none">PopTV</div>
-    </div>
-    <div class="live-status">
-        <div class="red-dot"></div>
-        <span id="clock">00:00</span>
-    </div>
-</header>
+    <div class="ambient-light"></div>
+    <div class="ambient-light-2"></div>
 
-<section class="hero">
-    <img src="" id="hero-bg" class="hero-bg" alt="Hero Background">
-    <div class="hero-content">
-        <span class="tag-live">En direct maintenant</span>
-        <h1 class="hero-title" id="hero-title">Chargement...</h1>
-        <div class="hero-meta">
-            <span id="hero-time">--:--</span>
-            <span>•</span>
-            <span id="hero-desc">Préparez-vous pour la suite</span>
+    <header>
+        <a href="#" class="brand">
+            <img src="https://ibb.co/fdLdWFvs" alt="PopTV" class="logo-img" id="logoImage">
+            <div id="logoText">POP<span>TV</span></div>
+        </a>
+        
+        <div class="header-right">
+            <div class="clock-badge">
+                <div class="live-dot"></div>
+                <span id="realClock">12:00</span>
+            </div>
         </div>
-    </div>
-</section>
+    </header>
 
-<div class="container">
-    <div class="filters-wrapper">
-        <button class="filter-btn active" onclick="setFilter('all')">Tout voir</button>
-        <button class="filter-btn" onclick="setFilter('matin')">Matin</button>
-        <button class="filter-btn" onclick="setFilter('midi')">Après-midi</button>
-        <button class="filter-btn" onclick="setFilter('soir')">Soirée</button>
-    </div>
-
-    <div class="program-grid" id="grid">
+    <section class="hero">
+        <div class="hero-bg-container">
+            <img src="" id="heroBg" class="hero-img">
         </div>
-</div>
+        <div class="hero-content">
+            <div class="status-badge">En Direct Maintenant</div>
+            <h1 class="hero-title" id="heroTitle">Chargement...</h1>
+            <div class="hero-meta">
+                <span id="heroTime"><i class="ph ph-clock"></i> --:--</span>
+                <span id="heroCategory"><i class="ph ph-tag"></i> --</span>
+            </div>
+            <button class="btn-watch"><i class="ph-fill ph-play-circle"></i> Regarder le direct</button>
+        </div>
+    </section>
 
-<footer>
-    <p>© 2026 PopTV Premium. Tous droits réservés.</p>
-</footer>
+    <main class="container">
+        <div class="section-header">
+            <div class="section-title">Programme TV</div>
+            <div class="filters">
+                <div class="filter-chip active" onclick="filterGrid('all')">Tout</div>
+                <div class="filter-chip" onclick="filterGrid('matin')">Matin</div>
+                <div class="filter-chip" onclick="filterGrid('midi')">Après-midi</div>
+                <div class="filter-chip" onclick="filterGrid('soir')">Soirée</div>
+            </div>
+        </div>
 
-<script>
-    /**
-     * CONFIGURATION DES DONNÉES
-     * Note: J'utilise des liens d'images Unsplash spécifiques et fiables pour éviter les liens cassés.
-     */
-    const programs = [
-        { id: 1, title: "Dessins Animés : Tfoo", start: "05:10", end: "07:30", cat: "matin", img: "https://images.unsplash.com/photo-1560167016-015b630dc742?q=80&w=800" },
-        { id: 2, title: "La Grande Matinale", start: "07:30", end: "10:00", cat: "matin", img: "https://images.unsplash.com/photo-1557318041-1ce374d55ebf?q=80&w=800" },
-        { id: 3, title: "Blind Test Music", start: "10:05", end: "11:55", cat: "matin", img: "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=800" },
-        { id: 4, title: "Les 12 Coups", start: "11:55", end: "12:55", cat: "midi", img: "https://images.unsplash.com/photo-1563222533-3b177d6110f0?q=80&w=800" },
-        { id: 5, title: "Journal de 13h", start: "13:00", end: "13:45", cat: "midi", img: "https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=800" },
-        { id: 6, title: "Demain nous appartient", start: "13:50", end: "14:50", cat: "midi", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800" },
-        { id: 7, title: "Le Juste Prix", start: "14:55", end: "16:00", cat: "midi", img: "https://images.unsplash.com/photo-1585675402422-92c2da239b0d?q=80&w=800" },
-        { id: 8, title: "Star Académie : Live", start: "16:00", end: "17:30", cat: "midi", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=800" },
-        { id: 9, title: "Actu People", start: "17:35", end: "18:20", cat: "soir", img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=800" },
-        { id: 10, title: "Karaoké Géant", start: "18:20", end: "19:45", cat: "soir", img: "https://images.unsplash.com/photo-1514525253344-99a4299945b6?q=80&w=800" },
-        { id: 11, title: "Le 20 Heures", start: "19:55", end: "20:45", cat: "soir", img: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=800" },
-        { id: 12, title: "PopTV Night Show", start: "21:00", end: "05:00", cat: "soir", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800" }
-    ];
+        <div class="grid" id="programGrid">
+            </div>
+    </main>
 
-    let currentFilter = 'all';
+    <script>
+        // --- DONNÉES FIABLES (Images HD Unsplash spécifiques) ---
+        const schedule = [
+            { title: "Tfoo : Dessins Animés", start: "05:10", end: "07:30", cat: "matin", tag: "cat-kids", genre: "Jeunesse", img: "https://images.unsplash.com/photo-1607513746994-51f730a44832?q=80&w=1200", desc: "Le meilleur des dessins animés pour bien commencer la journée !" },
+            { title: "La Grande Matinale", start: "07:30", end: "10:00", cat: "matin", tag: "cat-news", genre: "Info", img: "https://images.unsplash.com/photo-1550399564-9f7a05296c09?q=80&w=1200", desc: "Actualités, météo et bonne humeur avec toute l'équipe." },
+            { title: "Music Blind Test", start: "10:05", end: "11:55", cat: "matin", tag: "cat-show", genre: "Jeu", img: "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=1200", desc: "Devinez les tubes de l'année et gagnez des cadeaux." },
+            { title: "Les 12 Coups", start: "11:55", end: "12:55", cat: "midi", tag: "cat-show", genre: "Jeu", img: "https://images.unsplash.com/photo-1576723617715-6b907577558a?q=80&w=1200", desc: "Le jeu culte de la mi-journée." },
+            { title: "Le Journal de 13h", start: "13:00", end: "13:45", cat: "midi", tag: "cat-news", genre: "Info", img: "https://images.unsplash.com/photo-1559717865-a99ef797080f?q=80&w=1200", desc: "Toute l'actualité régionale et nationale." },
+            { title: "Demain nous appartient", start: "13:50", end: "14:50", cat: "midi", tag: "cat-movie", genre: "Série", img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200", desc: "Les intrigues continuent à Sète..." },
+            { title: "Le Juste Prix", start: "14:55", end: "16:00", cat: "midi", tag: "cat-show", genre: "Jeu", img: "https://images.unsplash.com/photo-1596564239209-158a79899f8d?q=80&w=1200", desc: "Estimez le juste prix des vitrines !" },
+            { title: "Star Academy Live", start: "16:00", end: "17:30", cat: "midi", tag: "cat-show", genre: "Réalité", img: "https://images.unsplash.com/photo-1501386761106-1803608d278b?q=80&w=1200", desc: "Suivez les élèves au château en direct." },
+            { title: "Actu People", start: "17:35", end: "18:20", cat: "soir", tag: "cat-show", genre: "Mag", img: "https://images.unsplash.com/photo-1531651008558-ed1740375b39?q=80&w=1200", desc: "Les derniers potins des stars." },
+            { title: "N'oubliez pas les paroles", start: "18:20", end: "19:45", cat: "soir", tag: "cat-show", genre: "Jeu", img: "https://images.unsplash.com/photo-1514525253344-99a4299945b6?q=80&w=1200", desc: "Chantez pour devenir le nouveau Maestro." },
+            { title: "Le 20 Heures", start: "19:55", end: "20:55", cat: "soir", tag: "cat-news", genre: "Info", img: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1200", desc: "La grande messe de l'information." },
+            { title: "PopTV Night Show", start: "21:00", end: "05:00", cat: "soir", tag: "cat-movie", genre: "Film", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200", desc: "Le grand film du dimanche soir." }
+        ];
 
-    // Utilitaire : Convertir HH:MM en minutes totales depuis minuit
-    const getMinutes = (timeStr) => {
-        const [h, m] = timeStr.split(':').map(Number);
-        return h * 60 + m;
-    };
+        // --- MOTEUR LOGIQUE ---
 
-    function updateUI() {
-        const now = new Date();
-        const currentMins = now.getHours() * 60 + now.getMinutes();
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-
-        let liveFound = false;
-
-        programs.forEach((prog, index) => {
-            // Filtrage
-            if (currentFilter !== 'all' && prog.cat !== currentFilter) return;
-
-            const startMins = getMinutes(prog.start);
-            let endMins = getMinutes(prog.end);
-            
-            // Gestion programme qui passe minuit
-            if (endMins < startMins) endMins += 1440; 
-
-            // État du programme
-            const isLive = currentMins >= startMins && currentMins < endMins;
-            const isPast = currentMins >= endMins;
-            const isFuture = currentMins < startMins;
-
-            // Calcul progression %
-            let progress = 0;
-            if (isLive) {
-                progress = ((currentMins - startMins) / (endMins - startMins)) * 100;
-                // Mise à jour du HERO
-                if (!liveFound) { // On prend le premier live trouvé pour le hero
-                    document.getElementById('hero-title').innerText = prog.title;
-                    document.getElementById('hero-bg').src = prog.img;
-                    document.getElementById('hero-time').innerText = `${prog.start} - ${prog.end}`;
-                    document.getElementById('hero-desc').innerText = "Regardez le direct exclusif sur PopTV";
-                    liveFound = true;
-                }
-            }
-
-            // Création de la carte HTML
-            const card = document.createElement('div');
-            card.className = `card ${isLive ? 'active' : ''} ${isPast ? 'past' : ''} fade-in`;
-            card.style.animationDelay = `${index * 0.05}s`; // Effet cascade
-
-            card.innerHTML = `
-                <div class="card-img-box">
-                    <img src="${prog.img}" class="card-img" alt="${prog.title}" loading="lazy">
-                    <div class="card-badge">${isLive ? 'EN DIRECT' : (isPast ? 'TERMINÉ' : 'À SUIVRE')}</div>
-                </div>
-                <div class="card-body">
-                    <div class="card-time">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        ${prog.start}
-                    </div>
-                    <div class="card-title">${prog.title}</div>
-                    <div class="card-cat">${prog.cat.toUpperCase()}</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${progress}%"></div>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-
-        // Si aucun live n'est trouvé (ex: entre deux programmes ou erreur), afficher un défaut
-        if (!liveFound && currentFilter === 'all') {
-            document.getElementById('hero-title').innerText = "Prochainement...";
-            document.getElementById('hero-desc').innerText = "Consultez la grille pour les programmes à venir.";
+        function getMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
         }
-    }
 
-    // Gestion des filtres
-    window.setFilter = (cat) => {
-        currentFilter = cat;
-        // Update boutons
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-        updateUI();
-    };
+        function refreshUI() {
+            const now = new Date();
+            const currentTotalMins = now.getHours() * 60 + now.getMinutes();
+            const grid = document.getElementById('programGrid');
+            
+            // On ne vide pas la grille brutalement pour éviter le clignotement si on voulait faire du diff, 
+            // mais ici on regenère pour simplifier la mise à jour des barres de progression.
+            grid.innerHTML = ''; 
 
-    // Horloge temps réel
-    setInterval(() => {
-        const d = new Date();
-        document.getElementById('clock').innerText = d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
-    }, 1000);
+            let activeShow = null;
 
-    // Rafraichissement logique toutes les 30 sec
-    setInterval(updateUI, 30000);
+            schedule.forEach(prog => {
+                // Calculs temporels
+                const startMins = getMinutes(prog.start);
+                let endMins = getMinutes(prog.end);
+                if (endMins < startMins) endMins += 1440; // Passage minuit
 
-    // Init
-    updateUI();
-    
-    // Fallback Logo Script (Active le texte si l'image casse)
-    document.querySelector('.logo-img').onerror = function() {
-        this.style.display = 'none';
-        document.querySelector('.logo-text').style.display = 'block';
-    };
+                const isLive = currentTotalMins >= startMins && currentTotalMins < endMins;
+                const isPast = currentTotalMins >= endMins;
+                
+                let percent = 0;
+                if(isLive) {
+                    percent = ((currentTotalMins - startMins) / (endMins - startMins)) * 100;
+                    activeShow = prog; // On capture le show en direct
+                }
 
-</script>
+                // Création de la carte (Seulement si correspond au filtre)
+                // Note: La logique de filtre est gérée par CSS/Class display dans une vraie app, ici on filtre à la génération
+                if(window.currentFilter === 'all' || window.currentFilter === prog.cat) {
+                    const card = document.createElement('div');
+                    card.className = `card ${isLive ? 'is-live' : ''} ${isPast ? 'is-past' : ''}`;
+                    
+                    card.innerHTML = `
+                        <div class="card-poster">
+                            <img src="${prog.img}" loading="lazy" alt="${prog.title}">
+                            <div class="cat-tag ${prog.tag}">${prog.genre}</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="time-slot">
+                                <span>${prog.start}</span>
+                                <span>${prog.end}</span>
+                            </div>
+                            <div class="prog-title">${prog.title}</div>
+                            <div class="prog-desc">${prog.desc}</div>
+                            ${isLive ? `<div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div>` : ''}
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
 
+            // Mise à jour du HERO (Header géant)
+            if (activeShow) {
+                document.getElementById('heroBg').src = activeShow.img;
+                document.getElementById('heroTitle').innerText = activeShow.title;
+                document.getElementById('heroTime').innerHTML = `<i class="ph ph-clock"></i> ${activeShow.start} - ${activeShow.end}`;
+                document.getElementById('heroCategory').innerHTML = `<i class="ph ph-television"></i> ${activeShow.genre}`;
+            } else {
+                // Fallback nuit/vide
+                document.getElementById('heroTitle').innerText = "Programmes à suivre";
+                document.getElementById('heroTime').innerText = "Consultez la grille";
+            }
+        }
+
+        // --- FILTRES ---
+        window.currentFilter = 'all';
+        window.filterGrid = (filter) => {
+            window.currentFilter = filter;
+            // Update boutons
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            refreshUI();
+        };
+
+        // --- INITIALISATION ---
+        
+        // Horloge
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('realClock').innerText = d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+        }, 1000);
+
+        // Refresh automatique toutes les 60s
+        setInterval(refreshUI, 60000);
+        
+        // Premier chargement
+        refreshUI();
+
+        // Gestion Logo (Fallback)
+        const img = document.getElementById('logoImage');
+        const txt = document.getElementById('logoText');
+        
+        img.onerror = function() {
+            img.style.display = 'none';
+            txt.style.display = 'block';
+        };
+        // Essai de chargement (Note: ibb.co bloque souvent les hotlinks directs, donc le texte s'affichera probablement, ce qui est mieux qu'une image cassée)
+        img.src = "https://i.ibb.co/fdLdWFvs/logo.png"; // Tentative lien direct si dispo, sinon fallback texte.
+
+    </script>
 </body>
 </html>
